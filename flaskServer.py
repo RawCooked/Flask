@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import os
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = 'uploads/'
+# Ensure the uploads directory is created (temporary in Render)
+UPLOAD_FOLDER = '/tmp/uploads/'  # Render provides a /tmp directory for temporary storage
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -18,6 +19,11 @@ def upload_image():
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     return jsonify({'message': 'Image uploaded successfully', 'filename': filename}), 200
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    # Serve the uploaded file from the /tmp/uploads/ directory
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/', methods=['GET'])
 def home():
