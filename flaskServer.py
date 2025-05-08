@@ -20,10 +20,13 @@ def upload_image():
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     return jsonify({'message': 'Image uploaded successfully', 'filename': filename}), 200
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    # Serve the uploaded file from the /tmp/uploads/ directory
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+@app.route('/uploads/<filename>', methods=['GET'])
+def get_image(filename):
+    try:
+        # Serve the uploaded file from the /tmp/uploads/ directory
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    except FileNotFoundError:
+        return jsonify({'error': 'File not found'}), 404
 
 @app.route('/', methods=['GET'])
 def home():
